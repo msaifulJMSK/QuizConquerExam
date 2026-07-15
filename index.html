@@ -134,10 +134,10 @@
                     <select id="reg-institusi" required onchange="handleInstitusiChange(this.value)"
                         class="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-poster-green/20 focus:border-poster-green transition-all duration-200 bg-slate-50 text-slate-900 font-semibold">
                         <option value="" disabled selected>Pilih Institusi Anda</option>
-                        <option value="Politeknik Port Dickson">Politeknik Port Dickson</option>
+                        <option value="Politeknik">Politeknik</option>
+                         <option value="Kolej Komuniti">Kolej Komuniti</option>
                         <option value="Sekolah">Sekolah</option>
-                        <option value="Institusi Pendidikan Tinggi (IPT)">Institusi Pendidikan Tinggi (IPT)</option>
-                        <option value="Lain-lain">Lain-lain (Sila Nyatakan)</option>
+                        <option value="Lain-lain institusi">Lain-lain institusi</option>
                     </select>
                 </div>
 
@@ -493,7 +493,7 @@ function doPost(e) {
                       "Skor Akhir: " + params.skor + "\n" +
                       "Peratus   : " + params.peratus + "%\n" +
                       "Masa      : " + params.tempoh + "\n\n" +
-                      "RINGKASAN DETIL JAWAPAN:\n" +
+                      "RINGKASAN JAWAPAN:\n" +
                       params.ringkasanJawapan.replace(/,/g, "\n") + "\n" +
                       "====================================\n" +
                       "Janaan Sistem Automatik - E-Math Quiz";
@@ -559,7 +559,7 @@ function doPost(e) {
     <script>
         // SILA TAMPALKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI (e.g., "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhRODbJB4oItQUD3moUgnbIzl5lTEl9451L7On2ElCgpanZLDGB1S/exec")
         // Jika ruangan ini diisi, aplikasi akan terus terhubung secara kekal tanpa perlu dikey-in setiap kali dibuka!
-        const DEFAULT_GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhR0DbjB4g-gR-mO_6F_m5P2Q_example/exec"; 
+        const DEFAULT_GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhRODbJB4oItQUD3moUgnbIzl5lTEl9451L7On2ElCgpanZLDGB1S/exec"; 
 
         // 1. DATA SOALAN MATEMATIK DARI GAMBAR YANG DIKEMUKAKAN
         const questions = [
