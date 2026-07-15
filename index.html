@@ -303,7 +303,7 @@
                     <div class="py-4 border-b border-slate-200 space-y-2.5 text-sm">
                         <div class="flex justify-between">
                             <span class="text-slate-400 font-medium">Tarikh & Masa:</span>
-                            <span class="font-bold text-slate-800 mono-font text-right" id="receipt-timestamp">14/07/2026 23:30</span>
+                            <span class="font-bold text-slate-800 mono-font text-right" id="receipt-timestamp">14/07/2026 09:30 AM</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-400 font-medium">Status:</span>
@@ -474,12 +474,12 @@ function doPost(e) {
   try {
     var params = JSON.parse(e.postData.contents);
     
-    // Bina struktur teks resit rasmi
+    // Bina struktur teks resit rasmi menggunakan waktu tempatan dari peranti peserta
     var fileContent = "====================================\n" +
                       "      RESIT RASMI KEPUTUSAN KUIZ\n" +
                       "====================================\n" +
                       "ID Transaksi : #" + params.resitId + "\n" +
-                      "Tarikh & Masa: " + new Date().toLocaleString('ms-MY') + "\n\n" +
+                      "Tarikh & Masa: " + params.timestamp + "\n\n" +
                       "MAKLUMAT PESERTA:\n" +
                       "Nama      : " + params.nama + "\n" +
                       "No. KP    : " + params.noKp + "\n" +
@@ -504,7 +504,7 @@ function doPost(e) {
     
     // Simpan rekod peserta ke baris baharu
     sheet.appendRow([
-      new Date().toLocaleString('ms-MY'),
+      params.timestamp, // Menggunakan waktu yang dihantar dari peranti peserta untuk ketepatan zon masa Malaysia
       params.nama,
       "'" + params.noKp, // Format no kp sebagai teks
       params.institusi,
@@ -552,6 +552,10 @@ function doPost(e) {
 
     <!-- ==================== LOGIK UTAMA JAVASCRIPT ==================== -->
     <script>
+        // SILA TAMPALKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI (e.g., "https://script.google.com/macros/s/AKfycb.../exec")
+        // Jika ruangan ini diisi, aplikasi akan terus terhubung secara kekal tanpa perlu dikey-in setiap kali dibuka!
+        const DEFAULT_GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhRODbJB4oItQUD3moUgnbIzl5lTEl9451L7On2ElCgpanZLDGB1S/exec"; 
+
         // 1. DATA SOALAN MATEMATIK DARI GAMBAR YANG DIKEMUKAKAN
         const questions = [
             {
@@ -621,18 +625,22 @@ function doPost(e) {
             currentIndex: 0,
             timer: null,
             timeElapsed: 0, // in seconds
-            gscriptUrl: '',
+            gscriptUrl: DEFAULT_GSCRIPT_URL, // Menggunakan URL lalai yang ditetapkan di atas
             receiptId: '',
             timestamp: ''
         };
 
         // 3. SEWAKTU HALAMAN DI-LOAD
         window.onload = function() {
-            // Load custom webapp url if exists in localStorage
-            const savedUrl = localStorage.getItem('e_math_gscript_url');
-            if (savedUrl) {
+            // Gunakan URL di dalam localStorage (jika pernah disimpan), atau gunakan URL tetapan lalai
+            const savedUrl = localStorage.getItem('e_math_gscript_url') || DEFAULT_GSCRIPT_URL;
+            if (savedUrl && savedUrl !== "https://script.google.com/macros/s/AKfycbwPzN1F2W98V9XpW6pX-x_1_x2_x3_example/exec") {
                 appState.gscriptUrl = savedUrl;
                 document.getElementById('config-gscript-url').value = savedUrl;
+                updateModeBadge(true);
+            } else if (DEFAULT_GSCRIPT_URL && DEFAULT_GSCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwPzN1F2W98V9XpW6pX-x_1_x2_x3_example/exec") {
+                appState.gscriptUrl = DEFAULT_GSCRIPT_URL;
+                document.getElementById('config-gscript-url').value = DEFAULT_GSCRIPT_URL;
                 updateModeBadge(true);
             } else {
                 updateModeBadge(false);
@@ -736,6 +744,22 @@ function doPost(e) {
             if (min > 0) timeString += `${min} Minit `;
             timeString += `${sec} Saat`;
             return timeString;
+        }
+
+        // Format Date to custom DD/MM/YYYY hh:mm AM/PM format safely
+        function formatTimestamp(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Jam '0' ditukar kepada '12'
+            const strTime = String(hours).padStart(2, '0') + ':' + minutes + ' ' + ampm;
+            
+            return `${day}/${month}/${year} ${strTime}`;
         }
 
         // 6. QUESTION DISPLAY LOGIC
@@ -853,7 +877,7 @@ function doPost(e) {
             // Unique transaction ID & Timestamp
             appState.receiptId = `RE-${Math.floor(1000000 + Math.random() * 9000000)}-${crypto.randomUUID().slice(0,4).toUpperCase()}`;
             const now = new Date();
-            appState.timestamp = now.toLocaleString('ms-MY');
+            appState.timestamp = formatTimestamp(now);
 
             // Switch Screen
             document.getElementById('screen-quiz').classList.add('hidden');
@@ -956,7 +980,8 @@ function doPost(e) {
                 peratus: appState.percentage,
                 tempoh: formatDuration(appState.timeElapsed),
                 resitId: appState.receiptId,
-                ringkasanJawapan: ringkasan
+                ringkasanJawapan: ringkasan,
+                timestamp: appState.timestamp // Menghantar timestamp peranti tempatan peserta untuk mengelakkan ralat zon masa pelayan Google
             };
 
             // Jika URL kosong, laksanakan mod simulasi
