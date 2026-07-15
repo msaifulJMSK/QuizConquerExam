@@ -91,7 +91,7 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <button onclick="toggleConfigModal()" class="text-slate-500 hover:text-poster-green p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200" title="Tetapan Google Sheets">
+                <button id="admin-gear-btn" onclick="toggleConfigModal()" class="hidden text-slate-500 hover:text-poster-green p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200" title="Tetapan Google Sheets">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -132,10 +132,10 @@
                     <select id="reg-institusi" required onchange="handleInstitusiChange(this.value)"
                         class="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-poster-green/20 focus:border-poster-green transition-all duration-200 bg-slate-50 text-slate-900 font-semibold">
                         <option value="" disabled selected>Pilih Institusi Anda</option>
-                        <option value="Politeknik Port Dickson">Politeknik Port Dickson</option>
+                        <option value="Politeknik">Politeknik</option>
+                        <option value="Kolej Komuniti">Kolej Komuniti</option>
                         <option value="Sekolah">Sekolah</option>
-                        <option value="Institusi Pendidikan Tinggi (IPT)">Institusi Pendidikan Tinggi (IPT)</option>
-                        <option value="Lain-lain">Lain-lain (Sila Nyatakan)</option>
+                        <option value="Lain-lain institusi">Lain-lain institusi (Sila Nyatakan)</option>
                     </select>
                 </div>
 
@@ -385,9 +385,11 @@
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
             <span>&copy; 2026 E-Math Quiz System. Semua hak terpelihara.</span>
             <div class="flex space-x-4">
-                <a href="#" onclick="toggleConfigModal()" class="hover:text-poster-green transition-colors">Integrasi Google Sheet</a>
-                <span>|</span>
-                <span id="current-mode-badge" class="text-amber-600 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1"></span> Mode Simulasi</span>
+                <span id="admin-footer-wrapper" class="hidden space-x-4">
+                    <a href="#" onclick="toggleConfigModal()" class="hover:text-poster-green transition-colors">Integrasi Google Sheet</a>
+                    <span>|</span>
+                </span>
+                <span id="current-mode-badge" class="text-amber-600 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1"></span> Mod Simulasi</span>
             </div>
         </div>
     </footer>
@@ -554,7 +556,7 @@ function doPost(e) {
     <script>
         // SILA TAMPALKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI (e.g., "https://script.google.com/macros/s/AKfycb.../exec")
         // Jika ruangan ini diisi, aplikasi akan terus terhubung secara kekal tanpa perlu dikey-in setiap kali dibuka!
-        const DEFAULT_GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhRODbJB4oItQUD3moUgnbIzl5lTEl9451L7On2ElCgpanZLDGB1S/exec"; 
+        const DEFAULT_GSCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPzN1F2W98V9XpW6pX-x_1_x2_x3_example/exec"; 
 
         // 1. DATA SOALAN MATEMATIK DARI GAMBAR YANG DIKEMUKAKAN
         const questions = [
@@ -632,9 +634,18 @@ function doPost(e) {
 
         // 3. SEWAKTU HALAMAN DI-LOAD
         window.onload = function() {
+            // Semak jika URL mengandungi parameter "?admin=true"
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                const gearBtn = document.getElementById('admin-gear-btn');
+                const footerLink = document.getElementById('admin-footer-wrapper');
+                if (gearBtn) gearBtn.classList.remove('hidden');
+                if (footerLink) footerLink.classList.remove('hidden');
+            }
+
             // Gunakan URL di dalam localStorage (jika pernah disimpan), atau gunakan URL tetapan lalai
             const savedUrl = localStorage.getItem('e_math_gscript_url') || DEFAULT_GSCRIPT_URL;
-            if (savedUrl && savedUrl !== "https://script.google.com/macros/s/AKfycbwPzN1F2W98V9XpW6pX-x_1_x2_x3_example/exec") {
+            if (savedUrl && savedUrl !== "https://script.google.com/macros/s/AKfycbzezSd-rqvjtLIvhRODbJB4oItQUD3moUgnbIzl5lTEl9451L7On2ElCgpanZLDGB1S/exec") {
                 appState.gscriptUrl = savedUrl;
                 document.getElementById('config-gscript-url').value = savedUrl;
                 updateModeBadge(true);
@@ -968,7 +979,7 @@ function doPost(e) {
             
             // Ringkasan jawapan yang dihantar sebagai bukti/lampiran bertulis
             const ringkasan = questions.map((q, idx) => {
-                return `[S${idx+1}] Jawaban: ${appState.answers[idx]} (${appState.answers[idx] === q.correctKey ? 'Betul' : 'Salah'})`;
+                return `[S${idx+1}] Jawapan: ${appState.answers[idx]} (${appState.answers[idx] === q.correctKey ? 'Betul' : 'Salah'})`;
             }).join(', ');
 
             // Bina payload data untuk Apps Script doPost()
